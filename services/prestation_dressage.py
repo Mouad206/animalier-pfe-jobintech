@@ -7,8 +7,8 @@
 # Original author: HP
 # 
 #######################################################
-import serviceAnimalier
+import services.profilAnimalier as profilAnimalier
 
-class dressageService(serviceAnimalier):
+class DressageService(profilAnimalier):
     def payer():
         pass

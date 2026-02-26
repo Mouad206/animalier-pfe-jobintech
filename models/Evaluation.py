@@ -15,7 +15,7 @@ class Evaluation:
         self.note = note
         self.commentaire = commentaire
         self.date_evaluation = date_evaluation
-    m_prestationService= prestationService()
+    prestationService= prestationService()
 
     def evaluerService(self, note: int, commentaire: str):
         self.evaluation = Evaluation(1, note, commentaire)

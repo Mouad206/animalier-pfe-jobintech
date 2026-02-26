@@ -1,5 +1,22 @@
-import models.Utilisateur as Utilisateur
+from models.utilisateur import Utilisateur
+from repository.catalogue_garde_repository import catalogue_garde
+from services.prestation_garde import prestation_garde
+import services.profilAnimalier
 
-class Veterinaire(Utilisateur):
-    def __init__(self, id_utilisateur: int, nom: str, prenom: str, email: str, mot_de_passe: str, role: str, telephone: str):
-        super().__init__(id_utilisateur, nom, prenom, email, mot_de_passe, role, telephone)
+from Package1.profilAnimalier import serviceAnimalier
+from Package1.prestationService import prestation_veterinairie
+from repository.cataloque_veterinaire_repository import catalogue_veterinaire
+
+class veterinaire(profilAnimalier):
+    
+    def __consulter_historique():
+        #il faut mettre requette mysql avec les client._id et prestation_veterinaire._id#
+
+    def payer_abonnement():
+        pass
+
+
+
+
+
+
