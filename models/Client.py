@@ -15,4 +15,7 @@ class Client(Utilisateur):
         super().__init__(id_utilisateur, nom, prenom, email, mot_de_passe, role, telephone)
         self.__adresse = adresse
     
-   
+def consulter_service_disponible():
+    pass
+def demander_service():
+    pass

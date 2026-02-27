@@ -9,26 +9,7 @@
 #######################################################
 
 
-from tokenize import StColumn, ring
-
-from sqlalchemy import Column, Intege, Integer, Integer, Integerr, Column, String
-
-from models.init import Base
-
-
-class Utilisateur(Base):
-        __tablename__ = 'utilisateurs'
-    
-        __id_utilisateur = Column(Integer, primary_key=True)
-        nom = Column(String(50), nullable=False)
-        __prenom = Column(String(50), nullable=False)
-        __email = Column(String(100), unique=True, nullable=False)
-        __mot_de_passe = Column(String(255), nullable=False)
-        __role = Column(String(20), nullable=False)
-        __telephone = Column(String(20), nullable=False)
-        
-        
-        
+class Utilisateur():
         
         def __init__(self, id_utilisateur: int, nom: str, prenom: str, email: str, mot_de_passe: str, role: str, telephone: str):
             self.__id_utilisateur = id_utilisateur

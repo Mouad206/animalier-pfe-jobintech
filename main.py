@@ -1,6 +1,6 @@
 from services.auth_service import AuthService
 from app.menu import admin_menu, client_menu, veterinaire_menu, garde_menu
-from databse.init_db import init_db
+
 
 def main():
     while True:
@@ -78,6 +78,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    init_db()
+    main()
+    
     

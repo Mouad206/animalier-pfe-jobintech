@@ -2,10 +2,7 @@ from models.utilisateur import Utilisateur
 from repository.catalogue_garde_repository import catalogue_garde
 from services.prestation_garde import prestation_garde
 import services.profilAnimalier
-
-from Package1.profilAnimalier import serviceAnimalier
-from Package1.prestationService import prestation_veterinairie
-from repository.cataloque_veterinaire_repository import catalogue_veterinaire
+from abc import ABC, abstractmethod
 
 class veterinaire(profilAnimalier):
     

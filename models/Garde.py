@@ -13,6 +13,11 @@ class StatutAbonnement(enums.Enum):
     INACTIF = "INACTIF"
 
 
+def consulter_historiques():
+    pass
+def payer_abonnement():
+    pass
+
 
 
     

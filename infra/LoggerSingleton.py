@@ -8,6 +8,7 @@
 # 
 #######################################################
 class LoggerSingleton:
+    _instance = None
     def ____init__():
         pass
 
