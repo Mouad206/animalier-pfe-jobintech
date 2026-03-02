@@ -10,9 +10,9 @@ if connection:
         # ======================================
         # DATABASE
         # ======================================
-        cursor.execute("DROP DATABASE IF EXISTS aniservice_home")
+        # cursor.execute("DROP DATABASE IF EXISTS aniservice_home")
         cursor.execute("""
-        CREATE DATABASE aniservice_home
+        CREATE DATABASE IF NOT EXISTS aniservice_home
         CHARACTER SET utf8mb4
         COLLATE utf8mb4_unicode_ci
         """)
