@@ -1,6 +1,6 @@
-from models.dresseur import Dresseur
-from models.garde import Garde
-from models.veterinaire import Veterinaire
+from models.Dresseur import Dresseur
+from models.Garde import Garde
+from models.Veterinaire import Veterinaire
 
 
 class InscriptionService:
