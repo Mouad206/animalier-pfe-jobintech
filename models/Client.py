@@ -9,13 +9,8 @@
 #######################################################
 from models.utilisateur import Utilisateur
 
-     
+
 class Client(Utilisateur):
-    def __init__(self, id_utilisateur: int, nom: str, prenom: str, email: str, mot_de_passe: str, role: str, telephone: str, adresse: str):
-        super().__init__(id_utilisateur, nom, prenom, email, mot_de_passe, role, telephone)
-        self.__adresse = adresse
-    
-def consulter_service_disponible():
-    pass
-def demander_service():
-    pass
+
+    def afficher_infos(self):
+        return f"Client: {self.nom} {self.prenom}"

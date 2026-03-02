@@ -1,22 +1,10 @@
-
-from models.utilisateur import Utilisateur
-from repository.catalogue_garde_repository import catalogue_garde
-from services.prestation_garde import prestation_garde
-import services.profilAnimalier
-from enum import Enum
+from models.profil import Profil
 
 
+class Garde(Profil):
 
-
-class StatutAbonnement(enums.Enum):
-    ACTIF = "ACTIF"
-    INACTIF = "INACTIF"
-
-
-def consulter_historiques():
-    pass
-def payer_abonnement():
-    pass
+    def afficher_profil(self):
+        return f"Vétérinaire {self.nom} - {self.ville}"
 
 
 

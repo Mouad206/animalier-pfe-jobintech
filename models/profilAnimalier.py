@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 
-class Service_factory(ABC):
+
+class ProfilAnimalier(ABC):
 
     @abstractmethod
-    def creer_service(self, **kwargs):
+    def afficher_profil(self):
         pass

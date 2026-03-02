@@ -7,7 +7,7 @@
 # Original author: HP
 # 
 #######################################################
-class LoggerSingleton:
+class Logger_config:
     _instance = None
     def ____init__():
         pass

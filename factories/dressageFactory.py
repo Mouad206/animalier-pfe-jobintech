@@ -7,13 +7,14 @@
 # Original author: HP
 # 
 #######################################################
+from models.veterinaire import Veterinaire
 from factories.profilFactory import ProfilFactory
-from abc import ABC, abstractmethod
 
-class dressageFactory(ProfilFactory):
-    ProfilFactory= ProfilFactory()
-    def creer_profil():
-        pass
+
+class DressageFactory(ProfilFactory):
+
+    def creer_profil(self, *args, **kwargs):
+        return Veterinaire(*args, **kwargs)
 
 
    

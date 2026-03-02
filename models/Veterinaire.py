@@ -1,16 +1,10 @@
-from models.utilisateur import Utilisateur
-from repository.catalogue_garde_repository import catalogue_garde
-from services.prestation_garde import prestation_garde
-import services.profilAnimalier
-from abc import ABC, abstractmethod
+from models.profil import Profil
 
-class veterinaire(profilAnimalier):
-    
-    def __consulter_historique():
-        #il faut mettre requette mysql avec les client._id et prestation_veterinaire._id#
 
-    def payer_abonnement():
-        pass
+class Veterinaire(Profil):
+
+    def afficher_profil(self):
+        return f"Vétérinaire {self.nom} - {self.ville}"
 
 
 

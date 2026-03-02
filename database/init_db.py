@@ -74,7 +74,9 @@ if connection:
             adresse VARCHAR(255),
             ville VARCHAR(100),
             disponibilite BOOLEAN DEFAULT TRUE,
-            statut_abonnement ENUM('ACTIF','INACTIF') DEFAULT 'ACTIF',
+            statut_abonnement ENUM('ACTIF','INACTIF') DEFAULT 'INACTIF',
+            type_abonnement ENUM('BASIC','PRIME') NOT NULL DEFAULT 'BASIC',
+            prix_abonnement DECIMAL(10,2) NOT NULL DEFAULT 0.00,
             PRIMARY KEY (utilisateur_id),
             CONSTRAINT fk_profils_utilisateur
                 FOREIGN KEY (utilisateur_id)
