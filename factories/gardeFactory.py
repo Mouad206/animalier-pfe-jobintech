@@ -7,14 +7,14 @@
 # Original author: HP
 # 
 #######################################################
-from models.veterinaire import Veterinaire
+from models.garde import Garde
 from factories.profilFactory import ProfilFactory
 
 
 class GardeFactory(ProfilFactory):
 
     def creer_profil(self, *args, **kwargs):
-        return Veterinaire(*args, **kwargs)
+        return Garde(*args, **kwargs)
 
     
 

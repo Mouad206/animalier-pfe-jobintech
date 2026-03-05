@@ -7,14 +7,14 @@
 # Original author: HP
 # 
 #######################################################
-from models.veterinaire import Veterinaire
+from models.dresseur import Dresseur
 from factories.profilFactory import ProfilFactory
 
 
 class DressageFactory(ProfilFactory):
 
     def creer_profil(self, *args, **kwargs):
-        return Veterinaire(*args, **kwargs)
+        return Dresseur(*args, **kwargs)
 
 
    

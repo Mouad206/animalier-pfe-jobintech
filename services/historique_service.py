@@ -1,27 +1,34 @@
 from database.db import get_connection
-from mysql.connector import Error
+from infra.logger_config import LoggerConfig
+from datetime import datetime
 
 
 class HistoriqueService:
 
-    @staticmethod
-    def ajouter_action(utilisateur_id, action):
-        connection = get_connection("aniservice_home")
+    def __init__(self):
+        self.logger = LoggerConfig()
+
+    def enregistrer_action(self, utilisateur_id, action, prestation_id=None):
 
         try:
+            connection = get_connection()
             cursor = connection.cursor()
 
-            cursor.execute("""
-                INSERT INTO historique_action (utilisateur_id, action)
-                VALUES (%s, %s)
-            """, (utilisateur_id, action))
+            query = """
+            INSERT INTO historique (date, action, utilisateur_id, prestation_id)
+            VALUES (%s, %s, %s, %s)
+            """
+
+            cursor.execute(query, (
+                datetime.now(),
+                action,
+                utilisateur_id,
+                prestation_id
+            ))
 
             connection.commit()
 
-        except Error as e:
-            print("Erreur historique:", e)
+            self.logger.log_info(f"Historique enregistré : {action}")
 
-        finally:
-            if connection.is_connected():
-                cursor.close()
-                connection.close()
+        except Exception as e:
+            self.logger.log_error(f"Erreur historique : {e}")

@@ -18,7 +18,7 @@ class statutPrestation(Enum):
     EN_COURS= "EN_COURS"
     TRMINEE= "TRMINEE"
 
-class statutRole((Enum)):
+class statutRole(Enum):
     ADMINISTRATEUR= "ADMINISTRATEUR"
     PROFIL= "PROFIL"
     CLIENT= "CLIENT"

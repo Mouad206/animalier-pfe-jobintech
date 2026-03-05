@@ -1,14 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class Evaluation(ABC):
 
-    def __init__(self, note, commentaire, prestation_id, client_id):
+    def __init__(self, id, note, commentaire, date):
+        self.id = id
         self.note = note
         self.commentaire = commentaire
-        self.prestation_id = prestation_id
-        self.client_id = client_id
-
-    @abstractmethod
-    def sauvegarder(self):
-        pass
+        self.date = date
