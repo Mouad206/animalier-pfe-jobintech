@@ -1,7 +1,7 @@
-from models.Utilisateur import Utilisateur
+from models.utilisateur import Utilisateur
 
 
 class Administrateur(Utilisateur):
 
-    def afficher_infos(self):
-        return f"Admin: {self.nom} ({self.email})"
+    def __init__(self, id, nom, prenom, email, telephone, mot_de_passe):
+        super().__init__(id, nom, prenom, email, telephone, mot_de_passe)

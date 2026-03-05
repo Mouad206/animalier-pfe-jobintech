@@ -18,291 +18,282 @@ if connection:
         """)
         cursor.execute("USE aniservice_home")
 
-        # ======================================
-        # UTILISATEURS (Classe abstraite)
-        # ======================================
+        # =========================
+        # UTILISATEURS
+        # =========================
+
         cursor.execute("""
-        CREATE TABLE utilisateurs (
+        CREATE TABLE IF NOT EXISTS utilisateurs(
             id INT AUTO_INCREMENT PRIMARY KEY,
-            nom VARCHAR(100) NOT NULL,
+            nom VARCHAR(100),
             prenom VARCHAR(100),
-            email VARCHAR(150) UNIQUE NOT NULL,
-            telephone VARCHAR(50) UNIQUE NOT NULL,
-            mot_de_passe VARCHAR(255) NOT NULL,
-            role ENUM('CLIENT','ADMIN','VETERINAIRE','DRESSEUR','GARDE') NOT NULL,
-            date_creation DATETIME DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB;
+            email VARCHAR(150) UNIQUE,
+            telephone VARCHAR(50),
+            mot_de_passe VARCHAR(255),
+            statutRole ENUM('CLIENT','ADMIN','PROFIL')
+        )
         """)
 
-        # ======================================
+        # =========================
         # CLIENTS
-        # ======================================
+        # =========================
+
         cursor.execute("""
-        CREATE TABLE clients (
-            utilisateur_id INT NOT NULL,
-            PRIMARY KEY (utilisateur_id),
-            CONSTRAINT fk_clients_utilisateur
-                FOREIGN KEY (utilisateur_id)
-                REFERENCES utilisateurs(id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
+        CREATE TABLE IF NOT EXISTS clients(
+            utilisateur_id INT PRIMARY KEY,
+            adresse VARCHAR(255),
+            FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id)
+        )
         """)
 
-        # ======================================
-        # ADMINISTRATEURS
-        # ======================================
-        cursor.execute("""
-        CREATE TABLE administrateurs (
-            utilisateur_id INT NOT NULL,
-            PRIMARY KEY (utilisateur_id),
-            CONSTRAINT fk_admin_utilisateur
-                FOREIGN KEY (utilisateur_id)
-                REFERENCES utilisateurs(id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
-        """)
+        # =========================
+        # PROFILS (VETERINAIRE / DRESSEUR / GARDE)
+        # =========================
 
-        # ======================================
-        # PROFILS (Classe abstraite fournisseur)
-        # ======================================
         cursor.execute("""
-        CREATE TABLE profils (
-            utilisateur_id INT NOT NULL,
+        CREATE TABLE IF NOT EXISTS profils(
+            utilisateur_id INT PRIMARY KEY,
+            statutRole ENUM('VETERINAIRE','DRESSEUR','GARDE'),
             raison_sociale VARCHAR(150),
-            certification VARCHAR(150),
+            certification BOOLEAN,
             annee_experience INT,
             adresse VARCHAR(255),
-            ville VARCHAR(100),
-            disponibilite BOOLEAN DEFAULT TRUE,
-            statut_abonnement ENUM('ACTIF','INACTIF') DEFAULT 'INACTIF',
-            type_abonnement ENUM('BASIC','PRIME') NOT NULL DEFAULT 'BASIC',
-            prix_abonnement DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-            PRIMARY KEY (utilisateur_id),
-            CONSTRAINT fk_profils_utilisateur
-                FOREIGN KEY (utilisateur_id)
-                REFERENCES utilisateurs(id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
+            disponibilite BOOLEAN,
+            statut_abonnement ENUM('ACTIF','INACTIF'),
+            FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id)
+        )
         """)
 
-        # ======================================
-        # VETERINAIRES
-        # ======================================
-        cursor.execute("""
-        CREATE TABLE veterinaires (
-            utilisateur_id INT NOT NULL,
-            PRIMARY KEY (utilisateur_id),
-            CONSTRAINT fk_vet_profil
-                FOREIGN KEY (utilisateur_id)
-                REFERENCES profils(utilisateur_id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
-        """)
-
-        # ======================================
-        # DRESSEURS
-        # ======================================
-        cursor.execute("""
-        CREATE TABLE dresseurs (
-            utilisateur_id INT NOT NULL,
-            PRIMARY KEY (utilisateur_id),
-            CONSTRAINT fk_dresseur_profil
-                FOREIGN KEY (utilisateur_id)
-                REFERENCES profils(utilisateur_id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
-        """)
-
-        # ======================================
-        # GARDES
-        # ======================================
-        cursor.execute("""
-        CREATE TABLE gardes (
-            utilisateur_id INT NOT NULL,
-            PRIMARY KEY (utilisateur_id),
-            CONSTRAINT fk_garde_profil
-                FOREIGN KEY (utilisateur_id)
-                REFERENCES profils(utilisateur_id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
-        """)
-
-        # ======================================
+        # =========================
         # ANIMAUX
-        # ======================================
+        # =========================
+
         cursor.execute("""
-        CREATE TABLE animaux (
+        CREATE TABLE IF NOT EXISTS animaux(
             id INT AUTO_INCREMENT PRIMARY KEY,
             nom VARCHAR(100),
             espece VARCHAR(100),
             race VARCHAR(100),
             age INT,
             client_id INT,
-            CONSTRAINT fk_animal_client
-                FOREIGN KEY (client_id)
-                REFERENCES clients(utilisateur_id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
+            FOREIGN KEY(client_id) REFERENCES clients(utilisateur_id)
+        )
         """)
 
-        # ======================================
-        # CATALOGUES
-        # ======================================
+        # =========================
+        # CATALOGUE VETERINAIRE
+        # =========================
+
         cursor.execute("""
-        CREATE TABLE catalogue_veterinaire (
+        CREATE TABLE IF NOT EXISTS catalogue_veterinaire(
             id INT AUTO_INCREMENT PRIMARY KEY,
+            type_service VARCHAR(100),
+            tarif DECIMAL(10,2),
+            description TEXT,
             veterinaire_id INT,
-            service VARCHAR(150),
-            description TEXT,
-            prix DECIMAL(10,2),
-            CONSTRAINT fk_catalogue_vet
-                FOREIGN KEY (veterinaire_id)
-                REFERENCES veterinaires(utilisateur_id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
+            FOREIGN KEY(veterinaire_id) REFERENCES profils(utilisateur_id)
+        )
         """)
 
+        # =========================
+        # CATALOGUE DRESSAGE
+        # =========================
+
         cursor.execute("""
-        CREATE TABLE catalogue_dresseur (
+        CREATE TABLE IF NOT EXISTS catalogue_dressage(
             id INT AUTO_INCREMENT PRIMARY KEY,
+            type_service VARCHAR(100),
+            tarif DECIMAL(10,2),
+            description TEXT,
             dresseur_id INT,
-            service VARCHAR(150),
-            description TEXT,
-            prix DECIMAL(10,2),
-            CONSTRAINT fk_catalogue_dresseur
-                FOREIGN KEY (dresseur_id)
-                REFERENCES dresseurs(utilisateur_id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
+            FOREIGN KEY(dresseur_id) REFERENCES profils(utilisateur_id)
+        )
         """)
 
+        # =========================
+        # CATALOGUE GARDE
+        # =========================
+
         cursor.execute("""
-        CREATE TABLE catalogue_garde (
+        CREATE TABLE IF NOT EXISTS catalogue_garde(
             id INT AUTO_INCREMENT PRIMARY KEY,
+            type_service VARCHAR(100),
+            tarif DECIMAL(10,2),
+            description TEXT,
             garde_id INT,
-            service VARCHAR(150),
-            description TEXT,
-            prix DECIMAL(10,2),
-            CONSTRAINT fk_catalogue_garde
-                FOREIGN KEY (garde_id)
-                REFERENCES gardes(utilisateur_id)
-                ON DELETE CASCADE
-        ) ENGINE=InnoDB;
+            FOREIGN KEY(garde_id) REFERENCES profils(utilisateur_id)
+        )
         """)
 
-        # ======================================
-        # PRESTATIONS
-        # ======================================
-        cursor.execute("""
-        CREATE TABLE prestation_veterinaire (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            type_service VARCHAR(100),
-            date_debut DATETIME,
-            statut ENUM('EN_ATTENTE','CONFIRMEE','TERMINEE') DEFAULT 'EN_ATTENTE',
-            client_id INT,
-            veterinaire_id INT,
-            CONSTRAINT fk_presta_vet_client
-                FOREIGN KEY (client_id)
-                REFERENCES clients(utilisateur_id),
-            CONSTRAINT fk_presta_vet_vet
-                FOREIGN KEY (veterinaire_id)
-                REFERENCES veterinaires(utilisateur_id)
-        ) ENGINE=InnoDB;
-        """)
+        # =========================
+        # PRESTATION VETERINAIRE
+        # =========================
 
         cursor.execute("""
-        CREATE TABLE prestation_dresseur (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            type_service VARCHAR(100),
-            date_debut DATETIME,
-            statut ENUM('EN_ATTENTE','CONFIRMEE','TERMINEE') DEFAULT 'EN_ATTENTE',
-            client_id INT,
-            dresseur_id INT,
-            CONSTRAINT fk_presta_dress_client
-                FOREIGN KEY (client_id)
-                REFERENCES clients(utilisateur_id),
-            CONSTRAINT fk_presta_dress_dress
-                FOREIGN KEY (dresseur_id)
-                REFERENCES dresseurs(utilisateur_id)
-        ) ENGINE=InnoDB;
-        """)
-
-        cursor.execute("""
-        CREATE TABLE prestation_garde (
+        CREATE TABLE IF NOT EXISTS prestation_veterinaire(
             id INT AUTO_INCREMENT PRIMARY KEY,
             date_debut DATETIME,
             date_fin DATETIME,
-            statut ENUM('EN_ATTENTE','CONFIRMEE','TERMINEE') DEFAULT 'EN_ATTENTE',
+            statut ENUM('EN_ATTENTE','CONFIRMEE','TERMINEE'),
+            client_id INT,
+            veterinaire_id INT,
+            animal_id INT,
+            FOREIGN KEY(client_id) REFERENCES clients(utilisateur_id),
+            FOREIGN KEY(veterinaire_id) REFERENCES profils(utilisateur_id),
+            FOREIGN KEY(animal_id) REFERENCES animaux(id)
+        )
+        """)
+
+        # =========================
+        # PRESTATION DRESSAGE
+        # =========================
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS prestation_dressage(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            date_debut DATETIME,
+            date_fin DATETIME,
+            statut ENUM('EN_ATTENTE','CONFIRMEE','TERMINEE'),
+            client_id INT,
+            dresseur_id INT,
+            animal_id INT,
+            FOREIGN KEY(client_id) REFERENCES clients(utilisateur_id),
+            FOREIGN KEY(dresseur_id) REFERENCES profils(utilisateur_id),
+            FOREIGN KEY(animal_id) REFERENCES animaux(id)
+        )
+        """)
+
+        # =========================
+        # PRESTATION GARDE
+        # =========================
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS prestation_garde(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            date_debut DATETIME,
+            date_fin DATETIME,
+            statut ENUM('EN_ATTENTE','CONFIRMEE','TERMINEE'),
             client_id INT,
             garde_id INT,
-            CONSTRAINT fk_presta_garde_client
-                FOREIGN KEY (client_id)
-                REFERENCES clients(utilisateur_id),
-            CONSTRAINT fk_presta_garde_garde
-                FOREIGN KEY (garde_id)
-                REFERENCES gardes(utilisateur_id)
-        ) ENGINE=InnoDB;
+            animal_id INT,
+            FOREIGN KEY(client_id) REFERENCES clients(utilisateur_id),
+            FOREIGN KEY(garde_id) REFERENCES profils(utilisateur_id),
+            FOREIGN KEY(animal_id) REFERENCES animaux(id)
+        )
         """)
 
-        # ======================================
-        # EVALUATIONS
-        # ======================================
-        cursor.execute("""
-        CREATE TABLE evaluation_prestation_veterinaire (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            note INT CHECK (note BETWEEN 1 AND 5),
-            commentaire TEXT,
-            prestation_id INT UNIQUE,
-            CONSTRAINT fk_eval_vet
-                FOREIGN KEY (prestation_id)
-                REFERENCES prestation_veterinaire(id)
-        ) ENGINE=InnoDB;
-        """)
+        # =========================
+        # EVALUATION VETERINAIRE
+        # =========================
 
         cursor.execute("""
-        CREATE TABLE evaluation_prestation_dresseur (
+        CREATE TABLE IF NOT EXISTS evaluation_veterinaire(
             id INT AUTO_INCREMENT PRIMARY KEY,
-            note INT CHECK (note BETWEEN 1 AND 5),
+            note INT,
             commentaire TEXT,
-            prestation_id INT UNIQUE,
-            CONSTRAINT fk_eval_dress
-                FOREIGN KEY (prestation_id)
-                REFERENCES prestation_dresseur(id)
-        ) ENGINE=InnoDB;
+            date DATETIME,
+            prestation_id INT,
+            FOREIGN KEY(prestation_id) REFERENCES prestation_veterinaire(id)
+        )
         """)
+
+        # =========================
+        # EVALUATION DRESSAGE
+        # =========================
 
         cursor.execute("""
-        CREATE TABLE evaluation_prestation_garde (
+        CREATE TABLE IF NOT EXISTS evaluation_dressage(
             id INT AUTO_INCREMENT PRIMARY KEY,
-            note INT CHECK (note BETWEEN 1 AND 5),
+            note INT,
             commentaire TEXT,
-            prestation_id INT UNIQUE,
-            CONSTRAINT fk_eval_garde
-                FOREIGN KEY (prestation_id)
-                REFERENCES prestation_garde(id)
-        ) ENGINE=InnoDB;
+            date DATETIME,
+            prestation_id INT,
+            FOREIGN KEY(prestation_id) REFERENCES prestation_dressage(id)
+        )
         """)
 
-        # ======================================
+        # =========================
+        # EVALUATION GARDE
+        # =========================
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS evaluation_garde(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            note INT,
+            commentaire TEXT,
+            date DATETIME,
+            prestation_id INT,
+            FOREIGN KEY(prestation_id) REFERENCES prestation_garde(id)
+        )
+        """)
+
+        # =========================
         # HISTORIQUE
-        # ======================================
+        # =========================
+
         cursor.execute("""
-        CREATE TABLE historique_action (
+        CREATE TABLE IF NOT EXISTS historique(
             id INT AUTO_INCREMENT PRIMARY KEY,
+            date DATETIME,
+            action TEXT,
             utilisateur_id INT,
-            action VARCHAR(255),
-            date_action DATETIME DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_historique_user
-                FOREIGN KEY (utilisateur_id)
-                REFERENCES utilisateurs(id)
-        ) ENGINE=InnoDB;
+            prestation_id INT,
+            FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id)
+        )
+        """)
+
+        # =========================
+        # DEMANDE RAPPEL
+        # =========================
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS demande_rappel(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            message TEXT,
+            statut ENUM('EN_ATTENTE','ACCEPTEE','REFUSEE'),
+            client_id INT,
+            profil_id INT,
+            FOREIGN KEY(client_id) REFERENCES clients(utilisateur_id),
+            FOREIGN KEY(profil_id) REFERENCES profils(utilisateur_id)
+        )
+        """)
+
+        # =========================
+        # RECLAMATIONS
+        # =========================
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS reclamations(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            motif VARCHAR(150),
+            description TEXT,
+            statut ENUM('EN_ATTENTE','TRAITEE','REJETEE'),
+            client_id INT,
+            profil_id INT,
+            FOREIGN KEY(client_id) REFERENCES clients(utilisateur_id),
+            FOREIGN KEY(profil_id) REFERENCES profils(utilisateur_id)
+        )
+        """)
+
+        # =========================
+        # NOTIFICATIONS
+        # =========================
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notifications(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            message TEXT,
+            statut ENUM('NON_LUE','LUE'),
+            utilisateur_id INT,
+            FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id)
+        )
         """)
 
         # ======================================
         # LOGS SYSTEME
         # ======================================
         cursor.execute("""
-        CREATE TABLE logs_systeme (
+        CREATE TABLE IF NOT EXISTS logs_systeme (
             id INT AUTO_INCREMENT PRIMARY KEY,
             niveau ENUM('INFO','WARNING','ERROR'),
             message TEXT,
