@@ -1,96 +1,194 @@
-import mysql.connector
-
-def get_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="ton_user",
-        password="ton_mdp",
-        database="nom_de_ta_base"
-    )
+from database.db import get_connection
+from services.auth_service import AuthService
+from services.prestation_veterinaire import PrestationVeterinaireService
+from services.prestation_dressage import PrestationDresseurService
+from services.prestation_garde import PrestationGardeService
 
 
-class ClientService:
+class ServiceClient:
 
+    # ===============================
+    # Voir ses prestations
+    # ===============================
     @staticmethod
-    def consulter_catalogue_dressage():
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM prestation_dressage")
-        data = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return data
+    def voir_prestations():
 
+        user = AuthService.current_user
+
+        connection = get_connection("aniservice_home")
+
+        try:
+            cursor = connection.cursor(dictionary=True)
+
+            # vétérinaire
+            cursor.execute("""
+                SELECT id,type_service,date_debut,statut
+                FROM prestation_veterinaire
+                WHERE client_id=%s
+            """, (user["id"],))
+
+            vet = cursor.fetchall()
+
+            # dressage
+            cursor.execute("""
+                SELECT id,type_service,date_debut,statut
+                FROM prestation_dresseur
+                WHERE client_id=%s
+            """, (user["id"],))
+
+            dress = cursor.fetchall()
+
+            # garde
+            cursor.execute("""
+                SELECT id,date_debut,date_fin,statut
+                FROM prestation_garde
+                WHERE client_id=%s
+            """, (user["id"],))
+
+            garde = cursor.fetchall()
+
+            return {
+                "veterinaire": vet,
+                "dressage": dress,
+                "garde": garde
+            }
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+
+    # ===============================
+    # Créer prestation vétérinaire
+    # ===============================
     @staticmethod
-    def consulter_catalogue_garde():
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM prestation_garde")
-        data = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return data
+    def demander_veterinaire(veterinaire_id, type_service, date_debut):
 
+        user = AuthService.current_user
+
+        return PrestationVeterinaireService.creer_prestation(
+            user["id"],
+            veterinaire_id,
+            type_service,
+            date_debut
+        )
+
+    # ===============================
+    # Créer prestation dressage
+    # ===============================
     @staticmethod
-    def consulter_catalogue_veterinaire():
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM prestation_veterinaire")
-        data = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return data
+    def demander_dressage(dresseur_id, type_service, date_debut):
 
+        user = AuthService.current_user
+
+        return PrestationDresseurService.creer_prestation(
+            user["id"],
+            dresseur_id,
+            type_service,
+            date_debut
+        )
+
+    # ===============================
+    # Créer prestation garde
+    # ===============================
     @staticmethod
-    def demander_service(table_prestation, prestation_id, client_id):
+    def demander_garde(garde_id, date_debut, date_fin):
 
-        tables_autorisees = [
-        "prestation_garde",
-        "prestation_dressage",
-        "prestation_veterinaire"
-        ]
+        user = AuthService.current_user
 
-        if table_prestation not in tables_autorisees:
-            raise ValueError("Type de prestation invalide")
+        return PrestationGardeService.creer_prestation(
+            user["id"],
+            garde_id,
+            date_debut,
+            date_fin
+        )
 
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    sql = f"""
-    UPDATE {table_prestation}
-    SET client_id = %s,
-        statut = 'RESERVEE'
-    WHERE id = %s
-    """
-
-    cursor.execute(sql, (client_id, prestation_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-   
+    # ===============================
+    # Modifier profil client
+    # ===============================
     @staticmethod
-    def confirmer_realisation(table_prestation, prestation_id):
+    def modifier_profil(nom, prenom, telephone):
 
-        tables_autorisees = [
-        "prestation_garde",
-        "prestation_dressage",
-        "prestation_veterinaire"
-        ]
+        user = AuthService.current_user
 
-        if table_prestation not in tables_autorisees:
-            raise ValueError("Type de prestation invalide")
+        connection = get_connection("aniservice_home")
 
-    conn = get_connection()
-    cursor = conn.cursor()
+        try:
+            cursor = connection.cursor()
 
-    sql = f"""
-        UPDATE {table_prestation}
-        SET statut = 'CONFIRMEE'
-        WHERE id = %s
-        """
+            cursor.execute("""
+                UPDATE utilisateurs
+                SET nom=%s, prenom=%s, telephone=%s
+                WHERE id=%s
+            """, (nom, prenom, telephone, user["id"]))
 
-    cursor.execute(sql, (prestation_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
+            connection.commit()
+
+            print("Profil modifié")
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+
+    # ===============================
+    # Ajouter animal
+    # ===============================
+    @staticmethod
+    def ajouter_animal(nom, espece, race, age):
+
+        user = AuthService.current_user
+
+        connection = get_connection("aniservice_home")
+
+        try:
+            cursor = connection.cursor()
+
+            cursor.execute("""
+                INSERT INTO animaux
+                (nom,espece,race,age,client_id)
+                VALUES (%s,%s,%s,%s,%s)
+            """, (
+                nom,
+                espece,
+                race,
+                age,
+                user["id"]
+            ))
+
+            connection.commit()
+
+            print("Animal ajouté")
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+
+    # ===============================
+    # Voir ses animaux
+    # ===============================
+    @staticmethod
+    def voir_animaux():
+
+        user = AuthService.current_user
+
+        connection = get_connection("aniservice_home")
+
+        try:
+            cursor = connection.cursor(dictionary=True)
+
+            cursor.execute("""
+                SELECT id,nom,espece,race,age
+                FROM animaux
+                WHERE client_id=%s
+            """, (user["id"],))
+
+            animaux = cursor.fetchall()
+
+            return animaux
+
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()

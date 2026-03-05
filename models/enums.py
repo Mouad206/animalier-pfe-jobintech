@@ -31,3 +31,7 @@ class TypeService(Enum):
     DRESSAGE = "DRESSAGE"
     GARDE = "GARDE"
     VETERINAIRE = "VETERINAIRE"
+    
+class TypeAbonnement(Enum):
+    BASIC = "BASIC"
+    PRIME = "PRIME"

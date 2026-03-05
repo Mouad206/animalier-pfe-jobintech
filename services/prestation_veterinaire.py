@@ -1,71 +1,60 @@
-import mysql.connector
-from database.db import DB_CONFIG
+from database.db import get_connection
+from mysql.connector import Error
+from services.auth_service import AuthService
 from services.log_service import LogService
+from services.historique_service import HistoriqueService
 
 
 class PrestationVeterinaireService:
 
     @staticmethod
-    def creer_prestation(client_id, description):
+    def creer_prestation(client_id, veterinaire_id, type_service, date_debut):
 
-        connection = mysql.connector.connect(**DB_CONFIG)
-        cursor = connection.cursor()
+        connection = get_connection("aniservice_home")
 
-        query = """
-        INSERT INTO prestations (client_id, type_prestation, description)
-        VALUES (%s, %s, %s)
-        """
+        try:
+            cursor = connection.cursor()
 
-        cursor.execute(
-            query,
-            (client_id, "veterinaire", description)
-        )
+            cursor.execute("""
+                INSERT INTO prestation_veterinaire
+                (type_service, date_debut, client_id, veterinaire_id)
+                VALUES (%s, %s, %s, %s)
+            """, (type_service, date_debut, client_id, veterinaire_id))
 
-        connection.commit()
-        prestation_id = cursor.lastrowid
+            connection.commit()
 
-        cursor.close()
-        connection.close()
+            prestation_id = cursor.lastrowid
 
-        # log système
-        LogService.log(client_id, "INFO", "Prestation vétérinaire créée")
+            # Historique client
+            HistoriqueService.ajouter_action(
+                client_id,
+                "Création prestation vétérinaire"
+            )
 
-        return prestation_id
+            # Log système
+            user = AuthService.get_current_user()
 
+            LogService.log(
+                "INFO",
+                user["id"],
+                f"Nouvelle prestation vétérinaire créée ID {prestation_id}"
+            )
 
-    @staticmethod
-    def terminer_prestation(prestation_id, client_id):
+            return prestation_id
 
-        connection = mysql.connector.connect(**DB_CONFIG)
-        cursor = connection.cursor()
+        except Error as e:
 
-        cursor.execute(
-            "UPDATE prestations SET statut='TERMINEE' WHERE id=%s",
-            (prestation_id,)
-        )
+            user = AuthService.get_current_user()
 
-        connection.commit()
+            LogService.log(
+                "ERROR",
+                user["id"] if user else None,
+                f"Erreur création prestation vétérinaire: {str(e)}"
+            )
 
-        cursor.close()
-        connection.close()
+            print("Erreur:", e)
 
-        LogService.log(client_id, "INFO", "Prestation vétérinaire terminée")
-
-
-    @staticmethod
-    def annuler_prestation(prestation_id, client_id):
-
-        connection = mysql.connector.connect(**DB_CONFIG)
-        cursor = connection.cursor()
-
-        cursor.execute(
-            "UPDATE prestations SET statut='ANNULEE' WHERE id=%s",
-            (prestation_id,)
-        )
-
-        connection.commit()
-
-        cursor.close()
-        connection.close()
-
-        LogService.log(client_id, "WARNING", "Prestation vétérinaire annulée")
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
