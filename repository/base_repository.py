@@ -1,18 +1,8 @@
+from database.db import get_connection
 
 
 class BaseRepository:
 
-    def add(self, entity):
-        pass
-
-    def get_by_id(self, entity_id):
-        pass
-
-    def get_all(self):
-        pass
-
-    def update(self, entity):
-        pass
-
-    def delete(self, entity_id):
-        pass
+    @staticmethod
+    def get_connection():
+        return get_connection("aniservice_home")

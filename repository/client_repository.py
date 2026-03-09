@@ -1,20 +1,51 @@
+from repository.base_repository import BaseRepository
 
 
-from base_repository import BaseRepository
+class ClientRepository(BaseRepository):
 
-class UserRepository(BaseRepository):
+    @staticmethod
+    def find_by_email(email):
 
-    def add(self, user):
-        pass
+        connection = BaseRepository.get_connection()
+        cursor = connection.cursor(dictionary=True)
 
-    def get_by_id(self, user_id):
-        pass
+        cursor.execute(
+            "SELECT * FROM utilisateurs WHERE email=%s",
+            (email,)
+        )
 
-    def get_all(self):
-        pass
+        user = cursor.fetchone()
 
-    def update(self, user):
-        pass
+        cursor.close()
+        connection.close()
 
-    def delete(self, user_id):
-        pass
+        return user
+
+
+    @staticmethod
+    def create(nom, prenom, email, telephone, mot_de_passe, role):
+
+        connection = BaseRepository.get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        INSERT INTO utilisateurs
+        (nom, prenom, email, telephone, mot_de_passe, role)
+        VALUES (%s,%s,%s,%s,%s,%s)
+        """, (
+            nom,
+            prenom,
+            email,
+            telephone,
+            mot_de_passe,
+            role
+        ))
+
+        connection.commit()
+
+        user_id = cursor.lastrowid
+
+        cursor.close()
+        connection.close()
+
+        return user_id
