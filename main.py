@@ -1,4 +1,5 @@
-from app.menu import menu_principal
+from app.menu_principal import menu_principal
+
 
 if __name__ == "__main__":
     menu_principal()

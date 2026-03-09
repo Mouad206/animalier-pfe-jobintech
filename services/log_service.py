@@ -1,5 +1,4 @@
-import mysql.connector
-from database.db import DB_CONFIG
+from database.db import get_connection
 
 
 class LogService:
@@ -7,16 +6,14 @@ class LogService:
     @staticmethod
     def log(niveau, utilisateur_id, message):
 
-        connection = mysql.connector.connect(**DB_CONFIG)
+        connection = get_connection("aniservice_home")
+
         cursor = connection.cursor()
 
-        cursor.execute(
-            """
+        cursor.execute("""
             INSERT INTO logs_systeme (niveau, message, utilisateur_id)
-            VALUES (%s, %s, %s)
-            """,
-            (niveau, message, utilisateur_id)
-        )
+            VALUES (%s,%s,%s)
+        """, (niveau, message, utilisateur_id))
 
         connection.commit()
 

@@ -1,34 +1,34 @@
-from database.db import get_connection
+from repository.historique_repository import HistoriqueRepository
 from infra.logger_config import LoggerConfig
-from datetime import datetime
 
 
 class HistoriqueService:
 
-    def __init__(self):
-        self.logger = LoggerConfig()
+    logger = LoggerConfig.getInstance()
 
-    def enregistrer_action(self, utilisateur_id, action, prestation_id=None):
+    @staticmethod
+    def enregistrer_action(utilisateur_id, action, prestation_id=None):
 
         try:
-            connection = get_connection()
-            cursor = connection.cursor()
 
-            query = """
-            INSERT INTO historique (date, action, utilisateur_id, prestation_id)
-            VALUES (%s, %s, %s, %s)
-            """
-
-            cursor.execute(query, (
-                datetime.now(),
-                action,
+            historique_id = HistoriqueRepository.create(
                 utilisateur_id,
+                action,
                 prestation_id
-            ))
+            )
 
-            connection.commit()
+            HistoriqueService.logger.log(
+                "INFO",
+                utilisateur_id,
+                f"Historique enregistré ID {historique_id}"
+            )
 
-            self.logger.log_info(f"Historique enregistré : {action}")
+            return historique_id
 
         except Exception as e:
-            self.logger.log_error(f"Erreur historique : {e}")
+
+            HistoriqueService.logger.log(
+                "ERROR",
+                utilisateur_id,
+                f"Erreur historique : {e}"
+            )

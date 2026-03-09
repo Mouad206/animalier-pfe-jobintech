@@ -1,60 +1,48 @@
-from database.db import get_connection
+from repository.abonnement_repository import AbonnementRepository
+from services.historique_service import HistoriqueService
 from infra.logger_config import LoggerConfig
+from datetime import date, timedelta
 
 
 class AbonnementService:
 
-    def __init__(self):
-        self.logger = LoggerConfig()
+    logger = LoggerConfig.getInstance()
+
+    @staticmethod
+    def payer_abonnement(profil_id, type_abonnement, montant):
+
+        date_debut = date.today()
+        date_fin = date_debut + timedelta(days=30)
+
+        abonnement_id = AbonnementRepository.create(
+            profil_id,
+            type_abonnement,
+            montant,
+            date_debut,
+            date_fin
+        )
+
+        HistoriqueService.enregistrer_action(
+            profil_id,
+            "Paiement abonnement",
+            abonnement_id
+        )
+
+        AbonnementService.logger.log(
+            "INFO",
+            profil_id,
+            f"Abonnement activé ID {abonnement_id}"
+        )
+
+        return abonnement_id
 
 
-    def verifier_abonnement(self, profil_id):
+    @staticmethod
+    def verifier_abonnement(profil_id):
 
-        try:
+        abonnement = AbonnementRepository.find_active_by_profil(profil_id)
 
-            connection = get_connection()
-            cursor = connection.cursor()
-
-            query = """
-            SELECT statut_abonnement
-            FROM profils
-            WHERE utilisateur_id = %s
-            """
-
-            cursor.execute(query, (profil_id,))
-            result = cursor.fetchone()
-
-            if result and result[0] == "ACTIF":
-                return True
-
+        if not abonnement:
             return False
 
-        except Exception as e:
-
-            self.logger.log_error(f"Erreur vérification abonnement : {e}")
-            return False
-
-
-    def revenus_abonnements(self):
-
-        try:
-
-            connection = get_connection()
-            cursor = connection.cursor()
-
-            query = """
-            SELECT COUNT(*)
-            FROM profils
-            WHERE statut_abonnement = 'ACTIF'
-            """
-
-            cursor.execute(query)
-
-            result = cursor.fetchone()
-
-            return result[0]
-
-        except Exception as e:
-
-            self.logger.log_error(f"Erreur calcul revenus : {e}")
-            return 0
+        return True

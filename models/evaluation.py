@@ -1,10 +1,9 @@
-from abc import ABC
+class Evaluation():
 
+    def __init__(self, note, commentaire, prestation_id, client_id, id=None):
 
-class Evaluation(ABC):
-
-    def __init__(self, id, note, commentaire, date):
         self.id = id
         self.note = note
         self.commentaire = commentaire
-        self.date = date
+        self.prestation_id = prestation_id
+        self.client_id = client_id

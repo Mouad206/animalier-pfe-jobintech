@@ -1,28 +1,36 @@
-from database.db import get_connection
+from repository.notification_repository import NotificationRepository
+from services.historique_service import HistoriqueService
 from infra.logger_config import LoggerConfig
 
 
 class NotificationService:
 
-    def __init__(self):
-        self.logger = LoggerConfig()
+    logger = LoggerConfig.getInstance()
 
-    def envoyer_notification(self, message, utilisateur_id):
+    @staticmethod
+    def envoyer_notification(utilisateur_id, message):
 
-        try:
-            connection = get_connection()
-            cursor = connection.cursor()
+        notification_id = NotificationRepository.create(
+            utilisateur_id,
+            message
+        )
 
-            query = """
-            INSERT INTO notifications (message, statut, utilisateur_id)
-            VALUES (%s, 'NON_LUE', %s)
-            """
+        HistoriqueService.enregistrer_action(
+            utilisateur_id,
+            "Notification envoyée",
+            notification_id
+        )
 
-            cursor.execute(query, (message, utilisateur_id))
+        NotificationService.logger.log(
+            "INFO",
+            utilisateur_id,
+            f"Notification envoyée ID {notification_id}"
+        )
 
-            connection.commit()
+        return notification_id
 
-            self.logger.log_info("Notification envoyée")
 
-        except Exception as e:
-            self.logger.log_error(f"Erreur notification : {e}")
+    @staticmethod
+    def voir_notifications(utilisateur_id):
+
+        return NotificationRepository.find_by_user(utilisateur_id)
