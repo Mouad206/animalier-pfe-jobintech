@@ -23,29 +23,18 @@ class ClientRepository(BaseRepository):
 
 
     @staticmethod
-    def create(nom, prenom, email, telephone, mot_de_passe, role):
+    def create(utilisateur_id):
 
-        connection = BaseRepository.get_connection()
-        cursor = connection.cursor()
+            connection = BaseRepository.get_connection()
+            cursor = connection.cursor()
 
-        cursor.execute("""
-        INSERT INTO utilisateurs
-        (nom, prenom, email, telephone, mot_de_passe, role)
-        VALUES (%s,%s,%s,%s,%s,%s)
-        """, (
-            nom,
-            prenom,
-            email,
-            telephone,
-            mot_de_passe,
-            role
-        ))
+            cursor.execute("""
+            INSERT INTO clients (utilisateur_id)
+            VALUES (%s)
+            """, (utilisateur_id,))
 
-        connection.commit()
+            connection.commit()
 
-        user_id = cursor.lastrowid
+            cursor.close()
+            connection.close()
 
-        cursor.close()
-        connection.close()
-
-        return user_id

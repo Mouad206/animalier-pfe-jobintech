@@ -5,6 +5,7 @@ from app.menu_admin import menu_admin
 from app.menu_client import menu_client
 from app.menu_profil import menu_profil
 from app.menu_inscription_profil import menu_inscription_profil
+from getpass import getpass
 
 
 def menu_principal():
@@ -43,7 +44,7 @@ def login():
     while tentatives > 0:
 
         email = input("Email : ")
-        password = input("Mot de passe : ")
+        password = getpass("Mot de passe : ")
 
         user = AuthService.login(email, password)
 
@@ -51,7 +52,7 @@ def login():
 
             role = user["role"]
 
-            print("Connexion réussie")
+            print("Bienvenue", user["nom"], user["prenom"], "(", role, ")")
 
             if role == "ADMIN":
                 menu_admin()
@@ -92,7 +93,7 @@ def register():
     prenom = input("Prenom : ")
     email = input("Email : ")
     telephone = input("Téléphone : ")
-    password = input("Mot de passe : ")
+    password = getpass("Mot de passe : ")
 
     print("\nChoisir un rôle :")
     print("1 CLIENT")

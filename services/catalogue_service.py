@@ -42,9 +42,15 @@ class CatalogueService:
 
 
     @staticmethod
-    def voir_catalogue_profil(profil_id):
+    def consulter_catalogue_profil(profil_id):
 
         return CatalogueRepository.find_by_profil(profil_id)
+    
+    
+    @staticmethod
+    def consulter_catalogue_par_type(type_service):
+
+        return CatalogueRepository.find_by_type(type_service)
 
 
     @staticmethod

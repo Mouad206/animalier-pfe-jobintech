@@ -28,6 +28,11 @@ def menu_admin():
         print("15. Vider logs")
 
         print("\n16. Dashboard")
+        
+        print("\n17. Voir catalogue")
+        print("\n18. Créer service catalogue")
+        print("\n19. Modifier catalogue")
+        print("\n20. Supprimer catalogue")
 
         print("\n0. Déconnexion")
 

@@ -1,5 +1,10 @@
+from datetime import datetime
+
 from repository.client_service_repository import ClientServiceRepository
+from repository.prestation_repository import PrestationRepository
 from services.historique_service import HistoriqueService
+from services.catalogue_service import CatalogueService
+from services.evaluation_service import EvaluationService
 from infra.logger_config import LoggerConfig
 
 
@@ -17,15 +22,20 @@ class ClientService:
 
 
     @staticmethod
-    def creer_prestation(type_service, description, date_debut, client_id, profil_id):
+    def creer_prestation(client_id, profil_id, catalogue_id, description, type_service):
 
-        ClientServiceRepository.create_prestation(
+        date_debut = datetime.now()
+
+        PrestationRepository.create(
             type_service,
+            client_id,
+            profil_id,
             description,
             date_debut,
-            client_id,
-            profil_id
+            catalogue_id
         )
+
+        print("✅ Prestation créée avec succès")
 
         HistoriqueService.enregistrer_action(
             client_id,
@@ -112,4 +122,36 @@ class ClientService:
         ClientServiceRepository.update_password(
             client_id,
             mot_de_passe
+        )
+        
+        
+    # =========================
+    # PROFIL
+    # =========================
+    @staticmethod
+    def consulter_catalogue():
+
+        return CatalogueService.voir_catalogue()
+    
+    @staticmethod
+    def consulter_catalogue_par_type(type_service):
+
+        return CatalogueService.consulter_catalogue_par_type(type_service)
+    
+    @staticmethod
+    def consulter_catalogue_profil(profil_id):
+
+        return CatalogueService.consulter_catalogue_profil(profil_id)
+    
+    # =========================
+    # PROFIL
+    # =========================
+    
+    @staticmethod
+    def evaluer_prestation(prestation_id, client_id, note, commentaire):
+        EvaluationService.evaluer(
+            prestation_id,
+            client_id,
+            note,
+            commentaire
         )

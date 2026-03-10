@@ -66,3 +66,27 @@ class EvaluationRepository(BaseRepository):
         connection.close()
 
         return evaluations
+    
+    
+    @staticmethod
+    def get_prestations_a_evaluer(client_id):
+
+        connection = BaseRepository.get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute("""
+        SELECT p.id, p.description, p.date_fin
+        FROM prestations p
+        LEFT JOIN evaluations e
+        ON p.id = e.prestation_id
+        WHERE p.client_id = %s
+        AND p.statut = 'TERMINEE'
+        AND e.id IS NULL
+        """, (client_id,))
+
+        prestations = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return prestations

@@ -64,6 +64,24 @@ class CatalogueRepository(BaseRepository):
         connection.close()
 
         return services
+    
+    @staticmethod
+    def find_by_type(type_service):
+
+        connection = BaseRepository.get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(
+            "SELECT * FROM catalogue_services WHERE type_service=%s",
+            (type_service,)
+        )
+
+        services = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return services
 
 
     @staticmethod

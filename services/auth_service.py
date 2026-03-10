@@ -117,6 +117,8 @@ class AuthService:
 
         print("✅ mot de passe mis à jour avec succès")
 
+        return True
+
 
     @staticmethod
     def get_current_user():

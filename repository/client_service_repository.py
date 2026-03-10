@@ -1,3 +1,4 @@
+from models import profil
 from repository.base_repository import BaseRepository
 
 
@@ -27,21 +28,27 @@ class ClientServiceRepository(BaseRepository):
 
 
     @staticmethod
-    def create_prestation(type_prestation, description, date_debut, client_id, profil_id):
+    def create_prestation(type_prestation, client_id, profil_id,
+               description, date_debut, catalogue_id):
 
         connection = BaseRepository.get_connection()
         cursor = connection.cursor()
 
-        cursor.execute("""
+        query = """
         INSERT INTO prestations
-        (type_prestation, description, date_debut, statut, client_id, profil_id)
-        VALUES (%s,%s,%s,'EN_ATTENTE',%s,%s)
-        """, (
+        (type_prestation, client_id, profil_id,
+         description, date_debut, statut, catalogue_id)
+        VALUES (%s,%s,%s,%s,%s,%s,%s)
+        """
+
+        cursor.execute(query, (
             type_prestation,
+            client_id,
+            profil_id,
             description,
             date_debut,
-            client_id,
-            profil_id
+            "EN_ATTENTE",
+            catalogue_id
         ))
 
         connection.commit()
@@ -222,27 +229,6 @@ class ClientServiceRepository(BaseRepository):
         WHERE utilisateur_id=%s
         """, (
             adresse,
-            client_id
-        ))
-
-        connection.commit()
-
-        cursor.close()
-        connection.close()
-
-
-    @staticmethod
-    def update_password(client_id, mot_de_passe):
-
-        connection = BaseRepository.get_connection()
-        cursor = connection.cursor()
-
-        cursor.execute("""
-        UPDATE utilisateurs
-        SET mot_de_passe=%s
-        WHERE id=%s
-        """, (
-            mot_de_passe,
             client_id
         ))
 

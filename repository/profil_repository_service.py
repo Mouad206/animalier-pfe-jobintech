@@ -132,12 +132,12 @@ class ProfilRepositoryService(BaseRepository):
         WHERE profil_id=%s
         """, (profil_id,))
 
-        result = cursor.fetchone()
+        abonnement = cursor.fetchall()
 
         cursor.close()
         connection.close()
 
-        return result
+        return abonnement
 
     # =========================
     # DASHBOARD

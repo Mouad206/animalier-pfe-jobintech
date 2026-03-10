@@ -1,5 +1,6 @@
 from repository.profil_repository_service import ProfilRepositoryService
 from services.abonnement_service import AbonnementService
+from services.catalogue_service import CatalogueService
 
 
 class ProfilService:
@@ -67,6 +68,29 @@ class ProfilService:
     def voir_abonnement(profil_id):
 
         return ProfilRepositoryService.get_abonnement(profil_id)
+    
+    # =========================
+    # CATALOGUE
+    # =========================
+    @staticmethod
+    def voir_catalogue(profil_id):
+
+        return CatalogueService.consulter_catalogue_profil(profil_id)
+    
+    @staticmethod
+    def create_catalogue(profil_id, type_service, service_nom, description, tarif):
+
+        CatalogueService.create_catalogue(profil_id, type_service, service_nom, description, tarif)
+        
+    @staticmethod
+    def modifier_catalogue(catalogue_id, type_service, service_nom, description, tarif):
+
+        CatalogueService.update_catalogue(catalogue_id, type_service, service_nom, description, tarif)
+        
+    @staticmethod
+    def supprimer_catalogue(catalogue_id):
+
+        CatalogueService.delete_catalogue(catalogue_id)
 
     # =========================
     # DASHBOARD

@@ -4,33 +4,33 @@ from repository.base_repository import BaseRepository
 class PrestationRepository(BaseRepository):
 
     @staticmethod
-    def create(prestation):
+    def create(type_prestation, client_id, profil_id,
+               description, date_debut, catalogue_id):
 
         connection = BaseRepository.get_connection()
         cursor = connection.cursor()
 
-        cursor.execute("""
+        query = """
         INSERT INTO prestations
-        (type_prestation, description, date_debut, date_fin, statut, client_id, profil_id)
+        (type_prestation, client_id, profil_id,
+         description, date_debut, statut, catalogue_id)
         VALUES (%s,%s,%s,%s,%s,%s,%s)
-        """, (
-            prestation.type_prestation,
-            prestation.description,
-            prestation.date_debut,
-            prestation.date_fin,
-            prestation.statut,
-            prestation.client_id,
-            prestation.profil_id
+        """
+
+        cursor.execute(query, (
+            type_prestation,
+            client_id,
+            profil_id,
+            description,
+            date_debut,
+            "EN_ATTENTE",
+            catalogue_id
         ))
 
         connection.commit()
 
-        prestation_id = cursor.lastrowid
-
         cursor.close()
         connection.close()
-
-        return prestation_id
 
 
     @staticmethod
@@ -86,3 +86,23 @@ class PrestationRepository(BaseRepository):
 
         cursor.close()
         connection.close()
+        
+        
+    @staticmethod
+    def find_by_id(prestation_id):
+
+                connection = BaseRepository.get_connection()
+                cursor = connection.cursor(dictionary=True)
+
+                cursor.execute("""
+                    SELECT *
+                    FROM prestations
+                    WHERE id = %s
+                """, (prestation_id,))
+
+                prestation = cursor.fetchone()
+
+                cursor.close()
+                connection.close()
+
+                return prestation
