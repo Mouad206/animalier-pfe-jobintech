@@ -324,6 +324,15 @@ if connection:
 
         ) ENGINE=InnoDB
         """)
+        
+        cursor.execute("""
+                       ALTER TABLE prestations
+                        ADD animal_id INT NULL,
+                        ADD CONSTRAINT fk_animal
+                        FOREIGN KEY (animal_id)
+                        REFERENCES animaux(id)
+                        ON DELETE SET NULL;
+        """)
 
         connection.commit()
 

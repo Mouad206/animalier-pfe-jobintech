@@ -207,17 +207,18 @@ class ClientServiceRepository(BaseRepository):
 
 
     @staticmethod
-    def update_profile(client_id, nom, email, telephone, adresse):
+    def update_profile(client_id, nom,prenom, email, telephone, adresse):
 
         connection = BaseRepository.get_connection()
         cursor = connection.cursor()
 
         cursor.execute("""
         UPDATE utilisateurs
-        SET nom=%s, email=%s, telephone=%s
+        SET nom=%s,prenom=%s, email=%s, telephone=%s
         WHERE id=%s
         """, (
             nom,
+            prenom,
             email,
             telephone,
             client_id
@@ -236,3 +237,60 @@ class ClientServiceRepository(BaseRepository):
 
         cursor.close()
         connection.close()
+        
+        
+    @staticmethod
+    def get_profils_disponibles():
+
+            connection = BaseRepository.get_connection()
+            cursor = connection.cursor(dictionary=True)
+
+            cursor.execute("""
+            SELECT u.id as utilisateur_id,
+                u.nom,
+                u.prenom,
+                p.raison_sociale,
+                p.ville,
+                p.disponibilite
+            FROM profils p
+            JOIN utilisateurs u
+            ON p.utilisateur_id = u.id
+            WHERE p.disponibilite = TRUE
+            """)
+
+            profils = cursor.fetchall()
+
+            cursor.close()
+            connection.close()
+
+            return profils
+        
+        
+    @staticmethod
+    def get_prestations_a_evaluer(client_id):
+
+        connection = BaseRepository.get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT p.id,
+                p.description,
+                p.date_fin,
+                u.nom,
+                u.prenom
+            FROM prestations p
+            JOIN utilisateurs u
+            ON p.profil_id = u.id
+            LEFT JOIN evaluations e
+            ON p.id = e.prestation_id
+            WHERE p.client_id = %s
+            AND p.statut = 'TERMINEE'
+            AND e.id IS NULL
+        """, (client_id,))
+
+        prestations = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return prestations

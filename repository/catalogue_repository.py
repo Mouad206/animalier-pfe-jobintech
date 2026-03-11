@@ -82,6 +82,33 @@ class CatalogueRepository(BaseRepository):
         connection.close()
 
         return services
+    
+    
+    @staticmethod
+    def update(catalogue_id, nom_service, description, type_service, tarif):
+
+            connection = BaseRepository.get_connection()
+            cursor = connection.cursor()
+
+            cursor.execute("""
+            UPDATE catalogue_services
+            SET service_nom=%s,
+                description=%s,
+                type_service=%s,
+                tarif=%s
+            WHERE id=%s
+            """, (
+                nom_service,
+                description,
+                type_service,
+                tarif,
+                catalogue_id
+            ))
+
+            connection.commit()
+
+            cursor.close()
+            connection.close()
 
 
     @staticmethod

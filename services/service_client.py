@@ -22,7 +22,7 @@ class ClientService:
 
 
     @staticmethod
-    def creer_prestation(client_id, profil_id, catalogue_id, description, type_service):
+    def creer_prestation(client_id, profil_id, catalogue_id, description, type_service, animal_id):
 
         date_debut = datetime.now()
 
@@ -32,7 +32,8 @@ class ClientService:
             profil_id,
             description,
             date_debut,
-            catalogue_id
+            catalogue_id,
+            animal_id
         )
 
         print("✅ Prestation créée avec succès")
@@ -105,11 +106,12 @@ class ClientService:
 
 
     @staticmethod
-    def modifier_profil(client_id, nom, email, telephone, adresse):
+    def modifier_profil(client_id, nom,prenom, email, telephone, adresse):
 
         ClientServiceRepository.update_profile(
             client_id,
             nom,
+            prenom,
             email,
             telephone,
             adresse
@@ -155,3 +157,14 @@ class ClientService:
             note,
             commentaire
         )
+        
+    @staticmethod
+    def prestations_a_evaluer(client_id):
+
+          return ClientServiceRepository.get_prestations_a_evaluer(client_id)
+        
+        
+    @staticmethod
+    def profils_disponibles():
+
+        return ClientServiceRepository.get_profils_disponibles()

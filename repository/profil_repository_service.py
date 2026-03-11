@@ -14,8 +14,35 @@ class ProfilRepositoryService(BaseRepository):
         cursor = connection.cursor(dictionary=True)
 
         cursor.execute("""
-        SELECT * FROM prestations
-        WHERE profil_id=%s
+        SELECT 
+            p.id,
+            p.description,
+            p.date_debut,
+            p.date_fin,
+            p.statut,
+
+            u.nom,
+            u.prenom,
+            u.telephone,
+
+            c.adresse,
+
+            a.nom AS animal_nom,
+            a.espece AS animal_espece,
+            a.race AS animal_race
+
+        FROM prestations p
+
+        JOIN utilisateurs u
+            ON p.client_id = u.id
+
+        LEFT JOIN clients c
+            ON c.utilisateur_id = u.id
+
+        LEFT JOIN animaux a
+            ON p.animal_id = a.id
+
+        WHERE p.profil_id = %s
         """, (profil_id,))
 
         result = cursor.fetchall()

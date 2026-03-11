@@ -41,16 +41,8 @@ def seed_admin():
             hashed_password.decode(),
             "ADMIN"
         ))
+        
 
-        connection.commit()
-
-        admin_id = cursor.lastrowid
-
-        # insertion table administrateurs
-        cursor.execute(
-            "INSERT INTO administrateurs (utilisateur_id) VALUES (%s)",
-            (admin_id,)
-        )
 
         connection.commit()
 

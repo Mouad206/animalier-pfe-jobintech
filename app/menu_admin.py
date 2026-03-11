@@ -1,4 +1,5 @@
 from services.admin_service import AdminService
+from utils.console_table import afficher_tableau
 
 
 def menu_admin():
@@ -6,35 +7,30 @@ def menu_admin():
     while True:
 
         print("\n===== MENU ADMIN =====")
-        print("1. Voir utilisateurs")
-        print("2. Créer utilisateur")
-        print("3. Modifier utilisateur")
-        print("4. Supprimer utilisateur")
-        print("5. Changer rôle utilisateur")
+        print("1 Voir utilisateurs")
+        print("2 Créer utilisateur")
+        print("3 Modifier utilisateur")
+        print("4 Supprimer utilisateur")
+        print("5 Changer rôle utilisateur")
 
-        print("\n6. Voir profils")
-        print("7. Supprimer profil")
+        print("\n6 Voir profils")
+        print("7 Supprimer profil")
 
-        print("\n8. Voir prestations")
-        print("9. Supprimer prestation")
+        print("\n8 Voir prestations")
+        print("9 Supprimer prestation")
 
-        print("\n10. Voir notifications")
-        print("11. Supprimer notification")
+        print("\n10 Voir notifications")
+        print("11 Supprimer notification")
 
-        print("\n12. Voir historique")
-        print("13. Vider historique")
+        print("\n12 Voir historique")
+        print("13 Vider historique")
 
-        print("\n14. Voir logs")
-        print("15. Vider logs")
+        print("\n14 Voir logs")
+        print("15 Vider logs")
 
-        print("\n16. Dashboard")
-        
-        print("\n17. Voir catalogue")
-        print("\n18. Créer service catalogue")
-        print("\n19. Modifier catalogue")
-        print("\n20. Supprimer catalogue")
+        print("\n16 Dashboard")
 
-        print("\n0. Déconnexion")
+        print("\n0 Déconnexion")
 
         choix = input("Choix : ")
 
@@ -47,8 +43,12 @@ def menu_admin():
             users = AdminService.voir_utilisateurs()
 
             print("\n===== UTILISATEURS =====")
-            for u in users:
-                print(u)
+
+            if not users:
+                print("Aucun utilisateur")
+                continue
+
+            afficher_tableau(users)
 
         elif choix == "2":
 
@@ -59,7 +59,17 @@ def menu_admin():
             email = input("Email : ")
             telephone = input("Téléphone : ")
             password = input("Mot de passe : ")
-            role = input("Role (ADMIN / CLIENT / VETERINAIRE / DRESSEUR / GARDE) : ")
+            # role = input("Role (ADMIN / CLIENT / VETERINAIRE / DRESSEUR / GARDE) : ")
+            print("Rôle : 1 ADMIN, 2 CLIENT, 3 VETERINAIRE, 4 DRESSEUR, 5 GARDE")
+            role = {
+                "1": "ADMIN",
+                "2": "CLIENT",
+                "3": "VETERINAIRE",
+                "4": "DRESSEUR",
+                "5": "GARDE"
+            }
+            role_input = input("Choix rôle : ")
+            role = role.get(role_input)
 
             AdminService.creer_utilisateur(
                 nom, prenom, email, telephone, password, role
@@ -67,28 +77,60 @@ def menu_admin():
 
         elif choix == "3":
 
-            user_id = input("ID utilisateur : ")
+            users = AdminService.voir_utilisateurs()
+
+            afficher_tableau(users)
+
+            choix_user = int(input("Choisir utilisateur : "))
+
+            if choix_user < 1 or choix_user > len(users):
+                print("Choix invalide")
+                continue
+
+            user = users[choix_user-1]
+
             nom = input("Nom : ")
             prenom = input("Prénom : ")
             email = input("Email : ")
             telephone = input("Téléphone : ")
 
             AdminService.modifier_utilisateur(
-                user_id, nom, prenom, email, telephone
+                user["id"], nom, prenom, email, telephone
             )
 
         elif choix == "4":
 
-            user_id = input("ID utilisateur à supprimer : ")
+            users = AdminService.voir_utilisateurs()
 
-            AdminService.supprimer_utilisateur(user_id)
+            afficher_tableau(users)
+
+            choix_user = int(input("Choisir utilisateur : "))
+
+            if choix_user < 1 or choix_user > len(users):
+                print("Choix invalide")
+                continue
+
+            user = users[choix_user-1]
+
+            AdminService.supprimer_utilisateur(user["id"])
 
         elif choix == "5":
 
-            user_id = input("ID utilisateur : ")
+            users = AdminService.voir_utilisateurs()
+
+            afficher_tableau(users)
+
+            choix_user = int(input("Choisir utilisateur : "))
+
+            if choix_user < 1 or choix_user > len(users):
+                print("Choix invalide")
+                continue
+
+            user = users[choix_user-1]
+
             role = input("Nouveau rôle : ")
 
-            AdminService.changer_role(user_id, role)
+            AdminService.changer_role(user["id"], role)
 
         # =========================
         # PROFILS
@@ -99,14 +141,24 @@ def menu_admin():
             profils = AdminService.voir_profils()
 
             print("\n===== PROFILS =====")
-            for p in profils:
-                print(p)
+
+            afficher_tableau(profils)
 
         elif choix == "7":
 
-            profil_id = input("ID profil à supprimer : ")
+            profils = AdminService.voir_profils()
 
-            AdminService.supprimer_profil(profil_id)
+            afficher_tableau(profils)
+
+            choix_p = int(input("Choisir profil : "))
+
+            if choix_p < 1 or choix_p > len(profils):
+                print("Choix invalide")
+                continue
+
+            profil = profils[choix_p-1]
+
+            AdminService.supprimer_profil(profil["utilisateur_id"])
 
         # =========================
         # PRESTATIONS
@@ -117,14 +169,24 @@ def menu_admin():
             prestations = AdminService.voir_prestations()
 
             print("\n===== PRESTATIONS =====")
-            for p in prestations:
-                print(p)
+
+            afficher_tableau(prestations)
 
         elif choix == "9":
 
-            prestation_id = input("ID prestation à supprimer : ")
+            prestations = AdminService.voir_prestations()
 
-            AdminService.supprimer_prestation(prestation_id)
+            afficher_tableau(prestations)
+
+            choix_p = int(input("Choisir prestation : "))
+
+            if choix_p < 1 or choix_p > len(prestations):
+                print("Choix invalide")
+                continue
+
+            prestation = prestations[choix_p-1]
+
+            AdminService.supprimer_prestation(prestation["id"])
 
         # =========================
         # NOTIFICATIONS
@@ -134,15 +196,23 @@ def menu_admin():
 
             notifications = AdminService.voir_notifications()
 
-            print("\n===== NOTIFICATIONS =====")
-            for n in notifications:
-                print(n)
+            afficher_tableau(notifications)
 
         elif choix == "11":
 
-            notification_id = input("ID notification : ")
+            notifications = AdminService.voir_notifications()
 
-            AdminService.supprimer_notification(notification_id)
+            afficher_tableau(notifications)
+
+            choix_n = int(input("Choisir notification : "))
+
+            if choix_n < 1 or choix_n > len(notifications):
+                print("Choix invalide")
+                continue
+
+            notification = notifications[choix_n-1]
+
+            AdminService.supprimer_notification(notification["id"])
 
         # =========================
         # HISTORIQUE
@@ -152,9 +222,7 @@ def menu_admin():
 
             historique = AdminService.voir_historique()
 
-            print("\n===== HISTORIQUE =====")
-            for h in historique:
-                print(h)
+            afficher_tableau(historique)
 
         elif choix == "13":
 
@@ -171,9 +239,7 @@ def menu_admin():
 
             logs = AdminService.voir_logs()
 
-            print("\n===== LOGS =====")
-            for l in logs:
-                print(l)
+            afficher_tableau(logs)
 
         elif choix == "15":
 
@@ -192,8 +258,12 @@ def menu_admin():
 
             print("\n===== DASHBOARD =====")
 
-            for k, v in stats.items():
-                print(k, ":", v)
+            data = [
+                {"Statistique": k, "Valeur": v}
+                for k, v in stats.items()
+            ]
+
+            afficher_tableau(data)
 
         elif choix == "0":
             print("Déconnexion admin")

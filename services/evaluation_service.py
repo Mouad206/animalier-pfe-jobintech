@@ -1,17 +1,19 @@
 from repository.evaluation_repository import EvaluationRepository
 from services.historique_service import HistoriqueService
 from services.notification_service import NotificationService
+from repository.evaluation_repository import EvaluationRepository
+from repository.prestation_repository import PrestationRepository
+from services.notification_service import NotificationService
+from services.historique_service import HistoriqueService
 from infra.logger_config import LoggerConfig
+
 
 
 class EvaluationService:
 
     logger = LoggerConfig.getInstance()
 
-from repository.evaluation_repository import EvaluationRepository
-from repository.prestation_repository import PrestationRepository
-from services.notification_service import NotificationService
-from services.historique_service import HistoriqueService
+
 
 
 class EvaluationService:
@@ -35,7 +37,7 @@ class EvaluationService:
         profil_id = prestation["profil_id"]
 
         # envoyer notification au profil
-        NotificationService.envoyer(
+        NotificationService.envoyer_notification(
             profil_id,
             f"Vous avez reçu une nouvelle évaluation (note {note}/5)"
         )
@@ -47,12 +49,7 @@ class EvaluationService:
             prestation_id
         )
 
-        # log système
-        EvaluationService.logger.log(
-            "INFO",
-            client_id,
-            f"Evaluation créée ID {evaluation_id}"
-        )
+
 
         print("✅ Evaluation enregistrée")
 
@@ -63,3 +60,8 @@ class EvaluationService:
     def prestations_a_evaluer(client_id):
 
         return EvaluationRepository.get_prestations_a_evaluer(client_id)
+    
+    @staticmethod
+    def evaluation_client(client_id):
+
+        return EvaluationRepository.find_by_client(client_id)

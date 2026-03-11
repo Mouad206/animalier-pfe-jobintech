@@ -5,16 +5,16 @@ class PrestationRepository(BaseRepository):
 
     @staticmethod
     def create(type_prestation, client_id, profil_id,
-               description, date_debut, catalogue_id):
+               description, date_debut, catalogue_id,animal_id=None):
 
         connection = BaseRepository.get_connection()
         cursor = connection.cursor()
 
         query = """
-        INSERT INTO prestations
-        (type_prestation, client_id, profil_id,
-         description, date_debut, statut, catalogue_id)
-        VALUES (%s,%s,%s,%s,%s,%s,%s)
+            INSERT INTO prestations
+            (type_prestation, client_id, profil_id,
+            description, date_debut, statut, catalogue_id, animal_id)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
         """
 
         cursor.execute(query, (
@@ -24,7 +24,8 @@ class PrestationRepository(BaseRepository):
             description,
             date_debut,
             "EN_ATTENTE",
-            catalogue_id
+            catalogue_id,
+            animal_id
         ))
 
         connection.commit()

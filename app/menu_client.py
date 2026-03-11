@@ -1,3 +1,4 @@
+from services.evaluation_service import EvaluationService
 from services.service_client import ClientService
 from services.auth_service import AuthService
 from utils.console_table import afficher_tableau
@@ -23,7 +24,7 @@ def menu_client():
         print("10 Catalogue complet")
         print("11 Catalogue par type")
         print("12 Catalogue d'un profil")
-        print("13 Évaluer prestation terminée")
+        print("14 Mes Evaluations")
         print("0  Déconnexion")
 
         choix = input("\nChoix : ")
@@ -50,13 +51,44 @@ def menu_client():
             service = catalogue[choix_service-1]
 
             description = input("Description : ")
+            animaux = ClientService.voir_animaux(user["id"])
+
+            print("\nChoisir un animal (optionnel)")
+
+            if animaux:
+
+                afficher_tableau(animaux)
+
+                print("0 Aucun animal")
+
+                choix = int(input("Choix : "))
+
+                if choix == 0:
+                    animal_id = None
+
+                else:
+
+                    animal_id = None
+
+                    for a in animaux:
+                        if a["id"] == choix:
+                            animal_id = a["id"]
+                            break
+
+                    if animal_id is None:
+                        print("❌ Animal invalide")
+                        continue
+
+            else:
+                animal_id = None
 
             ClientService.creer_prestation(
                 user["id"],
                 service["profil_id"],
                 service["id"],
                 description,
-                service["type_service"]
+                service["type_service"],
+                animal_id
             )
 
         # =====================
@@ -122,12 +154,13 @@ def menu_client():
         elif choix == "8":
 
             nom = input("Nom : ")
+            prenom = input("Prénom : ")
             email = input("Email : ")
             telephone = input("Téléphone : ")
             adresse = input("Adresse : ")
 
             ClientService.modifier_profil(
-                user["id"], nom, email, telephone, adresse
+                user["id"], nom, prenom, email, telephone, adresse
             )
 
         elif choix == "9":
@@ -156,8 +189,23 @@ def menu_client():
             afficher_tableau(catalogue)
 
         elif choix == "11":
+            print("Choisir type de service : ")
+            type_service = {
+                "1": "garde",
+                "2": "dressage",
+                "3": "veterinaire"
+            }
 
-            type_service = input("Type (VETERINAIRE/DRESSEUR/GARDE) : ")
+            print("1. Garde")
+            print("2. Dressage")
+            print("3. Vétérinaire")
+
+            choix_type = input("Choisir type de service : ")
+            type_service = type_service.get(choix_type)
+
+            if not type_service:
+                print("Type de service invalide")
+                continue
 
             catalogue = ClientService.consulter_catalogue_par_type(type_service)
 
@@ -182,26 +230,42 @@ def menu_client():
 
         elif choix == "13":
 
-            prestations = ClientService.prestations_a_evaluer(user["id"])
+                prestations = ClientService.prestations_a_evaluer(user["id"])
 
-            if not prestations:
-                print("Aucune prestation à évaluer")
+                if not prestations:
+                    print("Toutes vos prestations terminées sont déjà évaluées.")
+                    continue
+
+                print("\n===== PRESTATIONS À ÉVALUER =====\n")
+
+                for i, p in enumerate(prestations, 1):
+                    print(i, "|", p["description"], "|", p["date_fin"], "|", p["nom"], p["prenom"])
+
+                choix = int(input("\nChoisir prestation : "))
+
+                if choix < 1 or choix > len(prestations):
+                    print("Choix invalide")
+                    continue
+
+                prestation = prestations[choix-1]
+
+                note = int(input("Note (1-5) : "))
+                commentaire = input("Commentaire : ")
+
+                ClientService.evaluer_prestation(prestation["id"], user["id"], note, commentaire)
+                
+        elif choix == "14":
+
+            evaluations = EvaluationService.evaluation_client(user["id"])
+ 
+            if not evaluations:
+                print("Vous n'avez pas encore fait d'évaluation.")
                 continue
 
-            afficher_tableau(prestations)
+            print("\n===== MES ÉVALUATIONS =====\n")
 
-            choix = int(input("Choisir prestation : "))
-            prestation = prestations[choix-1]
-
-            note = int(input("Note (1-5) : "))
-            commentaire = input("Commentaire : ")
-
-            ClientService.evaluer_prestation(
-                prestation["id"],
-                user["id"],
-                note,
-                commentaire
-            )
+            for eval in evaluations:
+                print(f"Prestation ID: {eval['prestation_id']} | Note: {eval['note']} | Commentaire: {eval['commentaire']}")
 
         elif choix == "0":
             break

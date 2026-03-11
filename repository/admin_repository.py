@@ -465,11 +465,8 @@ class AdminRepository(BaseRepository):
         cursor = connection.cursor()
 
         cursor.execute("""
-        SELECT SUM(c.tarif)
-        FROM prestations p
-        JOIN catalogue_services c
-        ON p.catalogue_id = c.id
-        WHERE p.statut='TERMINEE'
+            SELECT SUM(montant)
+            FROM abonnements;
         """)
 
         result = cursor.fetchone()[0]

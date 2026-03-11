@@ -59,3 +59,16 @@ class CatalogueService:
         CatalogueRepository.delete(catalogue_id)
 
         print("Service supprimé")
+        
+    @staticmethod
+    def modifier_service(catalogue_id, nom_service, description, type_service, tarif):
+
+            CatalogueRepository.update(
+                catalogue_id,
+                nom_service,
+                description,
+                type_service,
+                tarif
+            )
+
+            print("✅ Service modifié")
